@@ -38,61 +38,61 @@ serviceWorker.unregister();
 import React from "react";
 
 const HomePAge = () => (
-    <div className='homepage'>
-        <div className='directory-menu'>
-            <div className='menu-item'>
-                <div className='content'>
-                    <h1 className='title'>
-                        Hats
-                    </h1>
-                    <span className='subtitle'>
-                        SHOP NOW
-                    </span>
-                </div>
-            </div>
-            <div className='menu-item'>
-                <div className='content'>
-                    <h1 className='title'>
-                        JAckets
-                    </h1>
-                    <span className='subtitle'>
-                        SHOP NOW
-                    </span>
-                </div>
-            </div>
-            <div className='menu-item'>
-                <div className='content'>
-                    <h1 className='title'>
-                        Sneakers
-                    </h1>
-                    <span className='subtitle'>
-                        SHOP NOW
-                    </span>
-                </div>
-            </div>
-            <div className='menu-item'>
-                <div className='content'>
-                    <h1 className='title'>
-                        Women's
-                    </h1>
-                    <span className='subtitle'>
-                        SHOP NOW
-                    </span>
-                </div>
-            </div>
-            <div className='menu-item'>
-                <div className='content'>
-                    <h1 className='title'>
-                        Mans
-                    </h1>
-                    <span className='subtitle'>
-                        SHOP NOW
-                    </span>
-                </div>
-            </div>
+  <div className="homepage">
+    <div className="directory-menu">
+      <div className="menu-item">
+        <div className="content">
+          <h1 className="title">Hats</h1>
+          <span className="subtitle">SHOP NOW</span>
         </div>
+      </div>
+      <div className="menu-item">
+        <div className="content">
+          <h1 className="title">JAckets</h1>
+          <span className="subtitle">SHOP NOW</span>
+        </div>
+      </div>
+      <div className="menu-item">
+        <div className="content">
+          <h1 className="title">Sneakers</h1>
+          <span className="subtitle">SHOP NOW</span>
+        </div>
+      </div>
+      <div className="menu-item">
+        <div className="content">
+          <h1 className="title">Women's</h1>
+          <span className="subtitle">SHOP NOW</span>
+        </div>
+      </div>
+      <div className="menu-item">
+        <div className="content">
+          <h1 className="title">Mans</h1>
+          <span className="subtitle">SHOP NOW</span>
+        </div>
+      </div>
     </div>
-)
+  </div>
+);
 
 export default HomePAge;
+
+```
+
+## **Import it into `App.js`**
+
+```jsx
+import React from "react";
+import HomePage from "./homePage.component";
+import "./App.css";
+
+function App() {
+  return (
+    <div>
+      <HomePage />
+    </div>
+  );
+}
+
+export default App;
+
 ```
