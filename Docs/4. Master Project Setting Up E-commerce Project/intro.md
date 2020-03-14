@@ -269,9 +269,105 @@ const HomePAge = () => (
 
 export default HomePAge;
 
+change the menu-item componenet 
 ```
 
 
 ![](img/2.png)
 
 
+## **Styling the Main Menu**
+***add this to `Menu-item component` 
+```scss
+
+.content{
+    background-color: white;
+    opacity: 0.7;
+    position: absolute;
+}
+
+```
+## **Adding Fonts to the Project**
+
+***add The LInk to the `index.html`***
+
+***in `App.css`***
+```scss
+
+body{
+    font-family: 'Open Sans Condensed', sans-serif;
+
+}
+
+```
+
+## **MenuItem component**
+
+```jsx
+import React from "react";
+import "./menu-item.style.scss";
+
+const MenuItem = ({ title, imageUrl, size }) => (
+  <div
+    className={`menu-item ${size}`}
+   
+  >
+    <div
+      className="background-image"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    />
+    <div className="content">
+      <h1 className="title">{title}</h1>
+      <span className="subtitle">SHOP NOW</span>
+    </div>
+  </div>
+);
+
+export default MenuItem;
+
+```
+
+add this to MenuItem style
+```scss
+  .background-image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .content {
+    height: 90px;
+    padding: 0 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid black;
+    text-transform: uppercase;
+    background-color: white;
+    opacity: 0.7;
+    // ---------------------new--------->
+    position: absolute;
+
+    .menu-item {
+
+
+  overflow: hidden;
+
+  &:hover {
+    cursor: pointer;
+    & .background-image {
+      transform: scale(1.1);
+      transition: transform 6s cubic-bezier(0.25, 0.45, 0.45, 0.95);
+    }
+    & .content{
+        opacity: 0.9;
+    }
+  }
+
+  }
+
+```
+
+![](img/3.png)
