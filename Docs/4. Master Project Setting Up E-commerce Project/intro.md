@@ -163,3 +163,115 @@ npm i node-sass
 ```
 
 ![](img/1.png)
+
+## **Creatin a Folder Structure**
+
+1. ***Create a components folder***
+
+1. ***Create a pages folder***
+
+## **Directory component**
+
+```jsx
+import React, { Component } from "react";
+import MenuItem from "../menu-items/menu-item.component";
+import "./directory.style.scss";
+class Directory extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      secction: [
+        {
+          title: "hats",
+          imageUrl: "https://i.ibb.co/cvpntL1/hats.png",
+          id: 1,
+          linkUrl: "shop/hats"
+        },
+        {
+          title: "jackets",
+          imageUrl: "https://i.ibb.co/px2tCc3/jackets.png",
+          id: 2,
+          linkUrl: "shop/jackets"
+        },
+        {
+          title: "sneakers",
+          imageUrl: "https://i.ibb.co/0jqHpnp/sneakers.png",
+          id: 3,
+          linkUrl: "shop/sneakers"
+        },
+        {
+          title: "womens",
+          imageUrl: "https://i.ibb.co/GCCdy8t/womens.png",
+          size: "large",
+          id: 4,
+          linkUrl: "shop/womens"
+        },
+        {
+          title: "mens",
+          imageUrl: "https://i.ibb.co/R70vBrQ/men.png",
+          size: "large",
+          id: 5,
+          linkUrl: "shop/mens"
+        }
+      ]
+    };
+  }
+
+  render() {
+    return (
+      <div className="directory-menu">
+        {this.state.secction.map(({ title, imageUrl, id, size }) => (
+          <MenuItem key={id} imageUrl={imageUrl} title={title} size={size} />
+        ))}
+      </div>
+    );
+  }
+}
+
+export default Directory;
+
+
+```
+## **Menu-item component**
+```jsx
+import React from "react";
+import "./menu-item.style.scss";
+
+const MenuItem = ({ title, imageUrl, size }) => (
+  <div
+    className={`menu-item ${size}`}
+    style={{ backgroundImage: `url(${imageUrl})` }}
+  >
+    <div className="content">
+      <h1 className="title">{title}</h1>
+      <span className="subtitle">SHOP NOW</span>
+    </div>
+  </div>
+);
+
+export default MenuItem;
+
+
+```
+## **HomePage component**
+
+```jsx
+import React from "react";
+import "./homepage.style.scss";
+import Directory from "../../components/directory/directory.component";
+
+const HomePAge = () => (
+  <div className="homepage">
+    <Directory />
+  </div>
+);
+
+export default HomePAge;
+
+```
+
+
+![](img/2.png)
+
+
