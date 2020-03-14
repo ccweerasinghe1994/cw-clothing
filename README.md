@@ -14,4 +14,8 @@
 12. MenuItem component
 13. Final Output
 
+# **Routing in the project**
+
+1. installing react router
+
  
