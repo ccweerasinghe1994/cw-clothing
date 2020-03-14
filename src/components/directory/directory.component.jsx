@@ -12,21 +12,21 @@ class Directory extends Component {
           imageUrl:
             "https://images.pexels.com/photos/101537/baby-boy-hat-covered-101537.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
           id: 1,
-          linkUrl: "shop/hats"
+          linkUrl: "hats"
         },
         {
           title: "jackets",
           imageUrl:
             "https://images.pexels.com/photos/1796102/pexels-photo-1796102.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
           id: 2,
-          linkUrl: "shop/jackets"
+          linkUrl: ""
         },
         {
           title: "sneakers",
           imageUrl:
             "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
           id: 3,
-          linkUrl: "shop/sneakers"
+          linkUrl: ""
         },
         {
           title: "womens",
@@ -34,7 +34,7 @@ class Directory extends Component {
             "https://images.pexels.com/photos/3761026/pexels-photo-3761026.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
           size: "large",
           id: 4,
-          linkUrl: "shop/womens"
+          linkUrl: ""
         },
         {
           title: "mens",
@@ -42,7 +42,7 @@ class Directory extends Component {
             "https://images.pexels.com/photos/2897531/pexels-photo-2897531.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
           size: "large",
           id: 5,
-          linkUrl: "shop/mens"
+          linkUrl: ""
         }
       ]
     };
@@ -51,8 +51,8 @@ class Directory extends Component {
   render() {
     return (
       <div className="directory-menu">
-        {this.state.secction.map(({ title, imageUrl, id, size }) => (
-          <MenuItem key={id} imageUrl={imageUrl} title={title} size={size} />
+        {this.state.secction.map(({ id, ...otherProps }) => (
+          <MenuItem key={id} {...otherProps} />
         ))}
       </div>
     );

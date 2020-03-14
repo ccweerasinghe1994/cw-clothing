@@ -398,8 +398,135 @@ export default function App() {
 }
 
 ```
+# **lets Get Back To the Mater Project**
+
+Using `WithRouter` component
+
+With Router Component is a higher order one
+
+in Menu-item component
+
+```jsx
+
+import {withRouter} from 'react-router-dom'
+
+```
+```jsx
+
+export default withRouter( MenuItem);
+
+```
+on click we are pushing for some url
+```jsx
+import React from "react";
+import "./menu-item.style.scss";
+import {withRouter} from 'react-router-dom'
+
+const MenuItem = ({ title, imageUrl, size, history, linkUrl }) => (
+  ---------------------------------------------------------------------
+  <div className={`menu-item ${size}`} onClick={() => history.push()}>
+ ----------------------------------------------------------------------- 
+    <div
+      className="background-image"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    />
+    <div className="content">
+      <h1 className="title">{title}</h1>
+      <span className="subtitle">SHOP NOW</span>
+    </div>
+  </div>
+);
+
+export default withRouter( MenuItem);
+
+```
+to do that  we have this url id dynamycaly generated as well
+
+for now just to hard code we can go to directory component
+
+and add `link url`
+```jsx
+    {
+          title: "hats",
+          imageUrl:
+            "https://images.pexels.com/photos/101537/baby-boy-hat-covered-101537.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          id: 1,
+          -----------------
+          linkUrl: "hats"
+          -----------------
+        },
+```
 
 
+now we goona pass this `link url` to the `MenuItem`
+
+```jsx
+
+render() {
+    return (
+      <div className="directory-menu">
+        {this.state.secction.map(({ title, imageUrl, id, size, linkUrl }) => (
+          <MenuItem
+            key={id}
+            imageUrl={imageUrl}
+            title={title}
+            size={size}
+            ---------------------------
+            linkUrl={linkUrl}
+            ---------------------------
+          />
+        ))}
+      </div>
+    );
+  }
+}
+
+export default Directory;
+
+````
+if those props are matched the value name we can use `...spread operator`
 
 
+```jsx
+  render() {
+    return (
+      <div className="directory-menu">
+        {this.state.secction.map(({ id, ...otherProps }) => (
+          <MenuItem key={id} {...otherProps} />
+        ))}
+      </div>
+    );
+  }
+}
 
+export default Directory;
+```
+
+after the implementaion 
+
+```jsx
+
+import React from "react";
+import "./menu-item.style.scss";
+import {withRouter} from 'react-router-dom'
+
+const MenuItem = ({ title, imageUrl, size, history, linkUrl,match }) => (
+  <div className={`menu-item ${size}`} 
+  -------------------------------------------------------
+  onClick={() => history.push(`${match.url}${linkUrl}`)}
+  -------------------------------------------------------
+  >
+    <div
+      className="background-image"
+      style={{ backgroundImage: `url(${imageUrl})` }}
+    />
+    <div className="content">
+      <h1 className="title">{title}</h1>
+      <span className="subtitle">SHOP NOW</span>
+    </div>
+  </div>
+);
+
+export default withRouter( MenuItem);
+
+```
