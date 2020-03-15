@@ -568,3 +568,337 @@ import { Link } from "react-router-dom";
     </div>
 
 ```
+
+Lets create a signInSignUp component
+```jsx
+
+import React from "react";
+import "./sign-in-and-sign-up.style.scss";
+
+const SignInAndSignUp = () => {
+  return <div className="sign-in-and-sign-up">SIGN IN</div>;
+};
+
+export default SignInAndSignUp;
+
+```
+lets import it in app.js
+
+```jsx
+import SignInSignUp from './components/sign-in-and-sign-up/sign-in-and-sign-up.component';
+
+<Route exact path='/signin' component={SignInSignUp} ></Route>
+
+```
+lets create a SignIn component
+
+```jsx 
+import React, { Component } from "react";
+import "./sign-in.style.scss";
+
+class SignIn extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: "",
+      password: ""
+
+      
+    };
+  }
+  
+handleSubmit =(event)=>{
+event.preventDefault();
+this.setState({email:'',password:''})
+}
+
+  render() {
+    return (
+      <div className="sign-in">
+        <h2>I Allready Have An Account</h2>
+        <span>Sign in with your email and password</span>
+        <form onSubmit ={this.handleSubmit}>
+          <input name="email" type="email" value={this.state.email} required />
+          <label>E-mail</label>
+          <input
+            name="password"
+            type="password"
+            value={this.state.password}
+            
+            required
+          />
+          <label>Password</label>
+          <input type="submit" value="Submit Form" />
+        </form>
+      </div>
+    );
+  }
+}
+
+export default SignIn;
+
+```
+lets create a form input component
+
+```jsx
+import React from "react";
+import './form-input.style.scss'
+
+const FormInput = ({ handleChange, label, ...otherProps }) => {
+  return (
+    <div className="group">
+      <input onChange={handleChange} {...otherProps} className="form-input" />
+      {label ? (
+        <label
+          className={`${
+            otherProps.value.length ? "shrink" : ""
+          } form-input-label`}
+        >
+          {label}
+        </label>
+      ) : null}
+    </div>
+  );
+};
+
+
+export default FormInput;
+```
+lets style form input
+
+```scss
+$sub-color: grey;
+$main-color: black;
+
+@mixin shrinkLable {
+  top: -14px;
+  font-size: 12px;
+  color: $main-color;
+}
+
+.group {
+  position: relative;
+  margin: 45px 0;
+
+  .form-input {
+    background: none;
+    background-color: white;
+    color: $sub-color;
+    font-size: 18px;
+    padding: 10px 10px 10px 5px;
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    border-bottom: 1px solid $sub-color;
+    margin: 25px 0;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus ~ .form-input-label {
+      @include shrinkLable();
+    }
+  }
+  input[type="password"] {
+    letter-spacing: 0.3rem;
+  }
+
+  .form-input-label {
+    color: $sub-color;
+    font-size: 16px;
+    font-weight: normal;
+    position: absolute;
+    pointer-events: none;
+    left: 5px;
+    top: 10px;
+    transition: 300ms ease all;
+
+    &.shrink {
+      @include shrinkLable();
+    }
+  }
+}
+
+```
+modified sign in component
+
+```jsx
+
+import React, { Component } from "react";
+import "./sign-in.style.scss";
+import FormInput from '../form-input/form-input.component'
+class SignIn extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: "",
+      password: ""
+    };
+  }
+  handlSubmit = event => {
+    event.preventDefault();
+    this.setState({ email: "", password: "" });
+  };
+  handleChange = event => {
+    const { value, name } = event.target;
+    this.setState({ [name]: value });
+  };
+  render() {
+    return (
+      <div className="sign-in">
+        <h2>I Allready Have An Account</h2>
+        <span>Sign in with your email and password</span>
+        <form onSubmit={this.handleChange}>
+          <FormInput
+            name="email"
+            type="email"
+            handleChange={this.handleChange}
+            value={this.state.email}
+            label='email'
+            required
+          />
+   
+          <FormInput
+            name="password"
+            type="password"
+            value={this.state.password}
+            handleChange={this.handleChange}
+            label='password'
+            required
+          />
+     
+          <input type="submit" value="Submit Form" />
+        </form>
+      </div>
+    );
+  }
+}
+
+export default SignIn;
+
+```
+
+lets create a custom button
+
+```jsx
+
+import React from "react";
+
+export const CustomButton = ({ children, ...otherProps }) => {
+  return (
+    <button className="custom-button" {...otherProps}>
+      {children}
+    </button>
+  );
+};
+
+export default CustomButton;
+
+
+```
+
+lets style this 
+```scss
+.custom-button {
+  min-width: 165px;
+  width: auto;
+  height: 50px;
+  letter-spacing: 0.5px;
+  line-height: 50px;
+  padding: 0 35px 0 35px;
+  font-size: 15px;
+  background-color: black;
+  color: white;
+  text-transform: uppercase;
+  font-family: "Open Sans Condensed";
+  font-weight: bolder;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+}
+
+```
+
+add cusstom-button to sign-in 
+
+```jsx
+import React, { Component } from "react";
+import "./sign-in.style.scss";
+import FormInput from "../form-input/form-input.component";
+import CustomButton from "../custom-button/custom-buttom.component";
+class SignIn extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: "",
+      password: ""
+    };
+  }
+  handlSubmit = event => {
+    event.preventDefault();
+    this.setState({ email: "", password: "" });
+  };
+  handleChange = event => {
+    const { value, name } = event.target;
+    this.setState({ [name]: value });
+  };
+  render() {
+    return (
+      <div className="sign-in">
+        <h2 className="title">I Allready Have An Account</h2>
+        <span>Sign in with your email and password</span>
+        <form onSubmit={this.handleChange}>
+          <FormInput
+            name="email"
+            type="email"
+            handleChange={this.handleChange}
+            value={this.state.email}
+            label="email"
+            required
+          />
+
+          <FormInput
+            name="password"
+            type="password"
+            value={this.state.password}
+            handleChange={this.handleChange}
+            label="password"
+            required
+          />
+
+          <CustomButton type="submit">Sign In</CustomButton>
+        </form>
+      </div>
+    );
+  }
+}
+
+export default SignIn;
+
+```
+
+lets add some styles 
+
+```scss
+
+.sign-in {
+  width: 30vw;
+  display: flex;
+  flex-direction: column;
+
+  .title {
+    margin: 10px 0;
+  }
+}
+
+```
