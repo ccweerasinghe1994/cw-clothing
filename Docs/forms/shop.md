@@ -490,3 +490,81 @@ collection-preview
 }
 
 ```
+
+creating Header
+
+```jsx
+
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+const Header = () => {
+  return (
+    <div className="header">
+      <Link to="/" className='logo-container'>
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+          <Link to='/shop' className='option'>SHOP</Link>
+          <Link to='/contact' className='option'>CONTACT</Link>
+      </div>
+    </div>
+  );
+};
+
+export default Header;
+
+```
+
+Header styles
+
+```scss
+.header {
+  height: 70px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  .logo-container {
+    height: 100%;
+    width: 70px;
+    padding: 25px;
+  }
+  .options {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    .option{
+        padding: 10px 15px;
+    }
+  }
+}
+
+```
+adding a svg icon
+
+find a svg icon `crown.svg`
+
+```jsx
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+ <Link to="/" className='logo-container'>
+        <Logo className="logo"></Logo>
+ </Link>
+```
+```jsx
+import { Link } from "react-router-dom";
+
+ <div className="header">
+      <Link to="/" className='logo-container'>
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+          <Link to='/shop' className='option'>SHOP</Link>
+          <Link to='/contact' className='option'>CONTACT</Link>
+      </div>
+    </div>
+
+```
