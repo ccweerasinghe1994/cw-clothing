@@ -53,3 +53,286 @@ what is an action
 ![](img/15.png)
 ![](img/16.png)
 
+# **intergrating redux into our app**
+
+install following packages
+
+```
+napm i redux redux-logger react-redux
+
+```
+go to `index.js`
+```jsx
+import {Provider} from 'react-redux';
+
+```
+
+```jsx
+
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+import {Provider} from 'react-redux'
+
+ReactDOM.render(
+-----------------------------------------
+  <Provider>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>
+-----------------------------------------
+,
+  document.getElementById("root")
+);
+
+```
+
+now lets create a redux folder in src
+
+in there create a root-reducer
+
+and user folder
+
+reducer is a function that gets two properties 
+it gets a state object which represent a last state  or initial state
+then it recives an action
+
+action is an object 
+ 
+```js
+ {
+    type:'',
+    payload:''
+}
+```
+
+lets create a user reducer
+
+```js
+const INITIAL_STATE = {
+  currentUser: null
+};
+
+const UserReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case "SET_CURRENT_USER":
+      return {
+        ...state,
+        currentUser: action.payload
+      };
+
+    default:
+      return state;
+  }
+};
+
+export default UserReducer;
+
+
+```
+
+lets create the root reducer
+
+```js
+import { combineReducers } from "redux";
+import UserReducer from "./user/user.reducer";
+
+export default combineReducers({
+  user: UserReducer
+});
+
+```
+
+lets create a store 
+
+create a store folder in src
+inside create a store.js file
+
+```js
+import { createStore, applyMiddleware } from "redux";
+import logger from "redux-logger";
+
+import rootReducer from "../root-reducer";
+
+const middleWares = [logger];
+
+const store = createStore(rootReducer, applyMiddleware(...middleWares));
+
+export default store;
+
+```
+
+
+apply the store in index.js
+
+```js
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import { BrowserRouter } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./redux/store/store";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById("root")
+);
+
+```
+
+lets create actions
+create a file called `user.actions.js
+
+```js
+export const setCurrentUser = user => ({
+  action: "SET_CURRENT_USER",
+  payload: user
+});
+
+```
+now our header component gets the current user from app.js but with redux we dont need that
+
+
+inside the header component 
+
+import `connect`
+```js
+
+import { connect } from "react-redux";
+
+```
+connect is a higher order component wich gives us access to redux functoions
+
+```jsx
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { auth } from "../../firebase/firebase.utils";
+import { connect } from "react-redux";
+
+const Header = ({ currentUser }) => {
+  return (
+    <div className="header">
+      <Link to="/" className="logo-container">
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+        <Link to="/shop" className="option">
+          SHOP
+        </Link>
+        <Link to="/contact" className="option">
+          CONTACT
+        </Link>
+
+        {currentUser ? (
+          <div className="option" onClick={() => auth.signOut()}>
+            SIGN OUT
+          </div>
+        ) : (
+          <Link to="/signin">SIGN IN</Link>
+        )}
+      </div>
+    </div>
+  );
+};
+----------------------------------------------------------
+const mapStateToProps = state => ({
+  currentUser: state.user.currentUser
+});
+export default connect(mapStateToProps)(Header);
+---------------------------------------------------------
+```
+
+
+and remove current user from app.js <Header>
+
+```jsx
+     <Header currentUser={this.state.currentUser} />
+```
+
+```jsx
+     <Header  />
+```
+
+now modify the app.js 
+
+```jsx
+import React, { Component } from "react";
+
+import HomePage from "./pages/homepage/homepage.component";
+import "./App.css";
+import { Route, Switch } from "react-router-dom";
+import ShopPage from "./pages/shop/shop.component";
+import Header from "./components/header/header.component";
+import SignInSignUp from "./components/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import { auth, createUserProfileDoucument } from "./firebase/firebase.utils";
+
+import { connect } from "react-redux";
+----------------------------------------------------------------------------------------------------------
+import { setCurrentUser } from "./redux/user/user.actions";
+----------------------------------------------------------------------------------------------------------
+
+class App extends Component {
+  // beacuse this is a open subscription we have to close it
+  // because we dont need any memory leaks in our application
+  unsubscribeFromAuth = null;
+  componentDidMount() {
+----------------------------------------------------------------------------------------------------------
+
+    const { setCurrentUser } = this.props;
+----------------------------------------------------------------------------------------------------------
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDoucument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+----------------------------------------------------------------------------------------------------------
+
+          setCurrentUser({ currentUser: snapShot.id, ...snapShot.data() });
+        });
+      } else {
+        setCurrentUser(userAuth);
+      }
+    });
+  }
+----------------------------------------------------------------------------------------------------------
+
+  // to close the subscription
+
+  componentWillUnmount() {
+    // this will close the subscription
+    this.unsubscribeFromAuth();
+  }
+  render() {
+    return (
+      <div>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/shop" component={ShopPage} />
+          <Route exact path="/signin" component={SignInSignUp}></Route>
+        </Switch>
+      </div>
+    );
+  }
+}
+----------------------------------------------------------------------------------------------------------
+
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default connect(null, mapDispatchToProps)(App);
+----------------------------------------------------------------------------------------------------------
+
+```
