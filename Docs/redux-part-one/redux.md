@@ -641,3 +641,129 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps)(Header);
 
 ```
+
+lets create a cart redux part
+
+**action type**
+```js
+export const CartActionTypes = {
+  TOGGLE_CART_HIDDEN: "TOGGLE_CART_HIDDEN"
+};
+
+```
+
+**action **
+```js
+import { CartActionTypes } from "./cart.types";
+
+export const toggleCardHidden = () => ({
+  type: CartActionTypes.TOGGLE_CART_HIDDEN
+});
+
+```
+
+**reducer**
+```js
+import { CartActionTypes } from "./cart.types";
+const INITIAL_STATE = {
+  hiddren: true
+};
+
+const cartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hiddren: !state.hiddren
+      };
+
+    default:
+      return state;
+  }
+};
+
+export default  cartReducer;
+
+```
+
+add this to the root reducer
+
+```js
+import { combineReducers } from "redux";
+import UserReducer from "./user/user.reducer";
+import cartReducer from "./cart/cart.reducer";
+
+export default combineReducers({
+  user: UserReducer,
+  cart: cartReducer
+});
+
+```
+
+add th eaction to the cart-icon component
+
+```jsx
+import React from "react";
+import "./cart-icon.style.scss";
+import { ReactComponent as ShoppingIcon } from "../../assets/shoopingBag.svg";
+import { connect } from "react-redux";
+import {toggleCardHidden} from '../../redux/cart/cart.action'
+const CartIcon = ({toggleCardHidden}) => {
+  return (
+    <div className="cart-icon" onClick={toggleCardHidden}>
+      <ShoppingIcon className="shopping-icon" />
+      <span className="item-count">0</span>
+    </div>
+  );
+};
+const mapDispatchToProps = dispatch => ({
+  toggleCardHidden: () => dispatch(toggleCardHidden())
+});
+export default connect(null,mapDispatchToProps)(CartIcon);
+
+```
+
+add the functionality to the header component
+```jsx
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { auth } from "../../firebase/firebase.utils";
+import { connect } from "react-redux";
+import CartIcon from "../cart-icon/cart-icon.component";
+import CartDropdown from "../cart-dropdown/cart-dropdown.component";
+const Header = ({ currentUser, hiddren }) => {
+  return (
+    <div className="header">
+      <Link to="/" className="logo-container">
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+        <Link to="/shop" className="option">
+          SHOP
+        </Link>
+        <Link to="/contact" className="option">
+          CONTACT
+        </Link>
+
+        {currentUser ? (
+          <div className="option" onClick={() => auth.signOut()}>
+            SIGN OUT
+          </div>
+        ) : (
+          <Link to="/signin">SIGN IN</Link>
+        )}
+        <CartIcon />
+      </div>
+      {hiddren ? null : <CartDropdown />}
+    </div>
+  );
+};
+const mapStateToProps = ({ user: { currentUser }, cart: { hiddren } }) => ({
+  currentUser,
+  hiddren
+});
+export default connect(mapStateToProps)(Header);
+
+```
