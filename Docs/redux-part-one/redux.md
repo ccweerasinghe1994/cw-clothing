@@ -1011,3 +1011,79 @@ const cartReducer = (state = INITIAL_STATE, action) => {
 export default cartReducer;
 
 ```
+
+lets create cart item component 
+
+```jsx
+import React from "react";
+import "./cart-item.style.scss";
+const CartItem = ({ item: { name, quantity, price, imageUrl } }) => {
+  return (
+    <div className="cart-item">
+      <img src={imageUrl} alt="" />
+      <div className="item-details">
+        <div className="name">{name}</div>
+        <div className="price">
+          {quantity}*${price}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CartItem;
+
+```
+lets style it
+```scss
+.cart-item {
+  width: 100%;
+  display: flex;
+  height: 80px;
+  margin-bottom: 15px;
+
+  img {
+    width: 30%;
+  }
+  .item-details {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 10px 20px;
+
+    .nam {
+      font-size: 16px;
+    }
+  }
+}
+
+```
+now use it in card-drop down component
+
+```jsx
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import CartItem from "../cart-item/cart-item.component";
+import { connect } from "react-redux";
+
+const CartDropDown = ({ cardItems }) => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items">
+        {cardItems.map(cardItem => (
+          <CartItem key={cardItem.id} item={cardItem} />
+        ))}
+      </div>
+      <CustomButton>GO TO CHEKOUT</CustomButton>
+    </div>
+  );
+};
+
+const mapStateToProps = ({ cart: { cardItems } }) => ({ cardItems });
+
+export default connect(mapStateToProps)(CartDropDown);
+
+```
