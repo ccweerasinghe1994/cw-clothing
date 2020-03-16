@@ -549,3 +549,95 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps)(Header);
 
 ```
+
+lets create Cart dropdown component
+
+```JSX
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+const CartDropDown = () => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items"></div>
+      <CustomButton>GO TO CHEKOUT</CustomButton>
+    </div>
+  );
+};
+export default CartDropDown;
+
+
+```
+
+lets style it
+```scss
+.cart-dropdown {
+  position: absolute;
+  width: 240px;
+  height: 340px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid black;
+  background-color: white;
+  top: 90px;
+  right: 40px;
+  z-index: 5;
+
+  .cart-items {
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+  }
+
+  button {
+    margin-top: auto;
+  }
+}
+```
+lets add this to our header
+
+```jsx
+
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { auth } from "../../firebase/firebase.utils";
+import { connect } from "react-redux";
+import CartIcon from "../cart-icon/cart-icon.component";
+import CartDropdown from '../cart-dropdown/cart-dropdown.component'
+const Header = ({ currentUser }) => {
+  return (
+    <div className="header">
+      <Link to="/" className="logo-container">
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+        <Link to="/shop" className="option">
+          SHOP
+        </Link>
+        <Link to="/contact" className="option">
+          CONTACT
+        </Link>
+
+        {currentUser ? (
+          <div className="option" onClick={() => auth.signOut()}>
+            SIGN OUT
+          </div>
+        ) : (
+          <Link to="/signin">SIGN IN</Link>
+        )}
+        <CartIcon/>
+      </div>
+      <CartDropdown/>
+    </div>
+  );
+};
+const mapStateToProps = state => ({
+  currentUser: state.user.currentUser
+});
+export default connect(mapStateToProps)(Header);
+
+```
