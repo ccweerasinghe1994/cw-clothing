@@ -464,3 +464,88 @@ const UserReducer = (state = INITIAL_STATE, action) => {
 export default UserReducer;
 
 ```
+
+lets create a shooping icon component
+
+```jsx
+import React from "react";
+import "./cart-icon.style.scss";
+import { ReactComponent as ShoppingIcon } from "../../assets/shoopingBag.svg";
+const CartIcon = () => {
+  return (
+    <div className="cart-icon">
+      <ShoppingIcon className="shopping-icon" />
+      <span className="item-count">0</span>
+    </div>
+  );
+};
+
+export default CartIcon;
+
+```
+lets style it
+```scss
+.cart-icon {
+  width: 45px;
+  height: 45px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  .shopping-icon {
+    width: 24px;
+    height: 24px;
+  }
+  .item-count {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    bottom: 12px;
+  }
+}
+
+```
+add that to header
+
+```jsx
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { auth } from "../../firebase/firebase.utils";
+import { connect } from "react-redux";
+import CartIcon from "../cart-icon/cart-icon.component";
+
+const Header = ({ currentUser }) => {
+  return (
+    <div className="header">
+      <Link to="/" className="logo-container">
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+        <Link to="/shop" className="option">
+          SHOP
+        </Link>
+        <Link to="/contact" className="option">
+          CONTACT
+        </Link>
+
+        {currentUser ? (
+          <div className="option" onClick={() => auth.signOut()}>
+            SIGN OUT
+          </div>
+        ) : (
+          <Link to="/signin">SIGN IN</Link>
+        )}
+        <CartIcon/>
+      </div>
+    </div>
+  );
+};
+const mapStateToProps = state => ({
+  currentUser: state.user.currentUser
+});
+export default connect(mapStateToProps)(Header);
+
+```
