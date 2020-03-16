@@ -14,6 +14,31 @@ const config = {
   appId: "1:551239194364:web:628f9256d0a022d3efa979",
   measurementId: "G-VCT05ERKQ7"
 };
+// this is an asynchronas action
+export const createUserProfileDoucument = async (userAuth, additionalData) => {
+  console.log(additionalData);
+
+  if (!userAuth) return;
+
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
+  const snapshot = await userRef.get();
+
+  if (!snapshot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
+    try {
+      await userRef.set({
+        ...additionalData,
+        displayName,
+        email,
+        createdAt
+      });
+    } catch (error) {
+      console.log("error creating user", error.message);
+    }
+  }
+  return userRef;
+};
 
 firebase.initializeApp(config);
 
@@ -34,7 +59,6 @@ provider.setCustomParameters({ propmt: "select_account" });
 
 // this is the popup configuration
 
-export const signInWithGoolge = ()=>auth.signInWithPopup(provider)
-
+export const signInWithGoolge = () => auth.signInWithPopup(provider);
 
 export default firebase;
