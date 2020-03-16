@@ -471,3 +471,33 @@ class SignUp extends Component {
 export default SignUp;
 
 ```
+
+lets create the functionality of sign in with username password
+
+add auth import to sign in component
+```jsx
+import { signInWithGoolge, auth } from "../../firebase/firebase.utils";
+```
+
+change thw handlesubmit() 
+```jsx 
+  handlSubmit = async event => {
+    event.preventDefault();
+    const { email, password } = this.state;
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      this.setState({ email: "", password: "" });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+```
+```jsx 
+
+```
+```jsx 
+
+```
+```jsx 
+
+```

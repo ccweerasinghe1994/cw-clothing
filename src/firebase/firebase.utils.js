@@ -16,8 +16,6 @@ const config = {
 };
 // this is an asynchronas action
 export const createUserProfileDoucument = async (userAuth, additionalData) => {
-  console.log(additionalData);
-
   if (!userAuth) return;
 
   const userRef = firestore.doc(`users/${userAuth.uid}`);
