@@ -767,3 +767,247 @@ const mapStateToProps = ({ user: { currentUser }, cart: { hiddren } }) => ({
 export default connect(mapStateToProps)(Header);
 
 ```
+
+adding custombuttom=n to the collection item
+```jsx
+import React from "react";
+import "./collection-item.style.scss";
+import CustomButton   from "../custom-button/custom-buttom.component";
+const CollectionItem = ({ id, imageUrl, name, price }) => {
+  return (
+    <div className="collection-item">
+      <div className="image" style={{ backgroundImage: `url(${imageUrl})` }} />
+      <div className="collection-footer">
+        <span className="name">{name}</span>
+        <span className="price">{price}</span>
+      </div>
+      <CustomButton inverted>ADD TO CART</CustomButton>
+    </div>
+  );
+};
+
+export default CollectionItem;
+```
+lets add adition styles to button
+```scss
+.custom-button {
+  min-width: 165px;
+  width: auto;
+  height: 50px;
+  letter-spacing: 0.5px;
+  line-height: 50px;
+  padding: 0 35px 0 35px;
+  font-size: 15px;
+  background-color: black;
+  color: white;
+  text-transform: uppercase;
+  font-family: "Open Sans Condensed";
+  font-weight: bolder;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+
+  &:hover {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+
+  &.google-sign-in {
+    background-color: #4285f4;
+    color: white;
+
+    &:hover {
+      background-color: #357ae8;
+      border: none;
+    }
+  }
+
+
+
+  &.inverted {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    &:hover {
+      background-color: black;
+      color: white;
+      border: none;
+    }
+  }
+}
+
+```
+
+add this to collection item styles 
+```scss
+  .custom-button {
+    width: 80%;
+    opacity: 0.7;
+    position: absolute;
+    top: 255px;
+    display: none;
+  }
+  &:hover {
+    .image {
+      opacity: 0.8;
+    }
+    .custom-button {
+      opacity: 0.85;
+      display: flex;
+    }
+  }
+```
+
+adding cart items redux functionality
+
+```js
+export const CartActionTypes = {
+  
+  ADD_ITEM: "ADD_ITEM"
+};
+
+```
+
+```js
+export const addItem = item => ({
+  type: CartActionTypes.ADD_ITEM,
+  payload: item
+});
+
+```
+
+```js
+import { CartActionTypes } from "./cart.types";
+const INITIAL_STATE = {
+  hiddren: true,
+  cardItems:[]
+};
+
+const cartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hiddren: !state.hiddren
+      };
+      case CartActionTypes.ADD_ITEM:
+        return{
+          ...state,
+          cardItems:[...state.cardItems,action.payload]
+
+        }
+    default:
+      return state;
+  }
+};
+
+export default cartReducer;
+
+```
+lets change the collection preview component to return item 
+
+```jsx
+import React from "react";
+import "./collection-preview.style.scss";
+import CollectionItem from "../collection-item/collection-item.component";
+const CollectionPreview = ({ title, items }) => {
+  return (
+    <div className="collection-preview">
+      <h1 title="title">{title.toUpperCase()}</h1>
+      <div className="preview">
+        {items
+          .filter((item, index) => index < 4)
+          .map(item => (
+            <CollectionItem key={item.id} item={item} />
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default CollectionPreview;
+```
+
+now add the functionality to the collection item component
+
+```jsx
+import React from "react";
+import "./collection-item.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import { connect } from "react-redux";
+import { addItem } from "../../redux/cart/cart.action";
+const CollectionItem = ({ item, addItem }) => {
+  const { imageUrl, name, price } = item;
+  return (
+    <div className="collection-item">
+      <div className="image" style={{ backgroundImage: `url(${imageUrl})` }} />
+      <div className="collection-footer">
+        <span className="name">{name}</span>
+        <span className="price">{price}</span>
+      </div>
+      <CustomButton inverted onClick={() => addItem(item)}>
+        ADD TO CART
+      </CustomButton>
+    </div>
+  );
+};
+const mapDispatchToProps = dispatch => ({
+  addItem: item => dispatch(addItem(item))
+});
+export default connect(null, mapDispatchToProps)(CollectionItem);
+```
+
+adding utility class to group the cart items
+
+create a utilclass in the cart redux file
+
+```jsx
+export const addItemToCart = (cardItems, cardItemToAdd) => {
+  const exsistingCardItem = cardItems.find(
+    cardItem => cardItem.id === cardItemToAdd.id
+  );
+
+  if (exsistingCardItem) {
+    return cardItems.map(cardItem =>
+      cardItem.id === cardItemToAdd.id
+        ? { ...cardItem, quantity: cardItem.quantity + 1 }
+        : cardItem
+    );
+  }
+  return [...cardItems, { ...cardItemToAdd, quantity: 1 }];
+};
+
+```
+
+add the method to the reducer
+
+```jsx
+import { CartActionTypes } from "./cart.types";
+import { addItemToCart } from "./cart.util";
+const INITIAL_STATE = {
+  hiddren: true,
+  cardItems: []
+};
+
+const cartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hiddren: !state.hiddren
+      };
+    case CartActionTypes.ADD_ITEM:
+      return {
+        ...state,
+        cardItems: addItemToCart(state.cardItems, action.payload)
+      };
+    default:
+      return state;
+  }
+};
+
+export default cartReducer;
+
+```
