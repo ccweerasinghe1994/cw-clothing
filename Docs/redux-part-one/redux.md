@@ -1115,3 +1115,90 @@ const mapStateToProps = ({ cart: { cardItems } }) => ({
 });
 export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
 ```
+
+# USing RESELECT LIBRARY
+
+
+```
+npm i reselect
+
+```
+
+lets create a selector 
+
+```js
+import { createSelector } from "reselect";
+const selectCart = state => state.cart;
+
+export const selelctCartItems = createSelector(
+  [selectCart],
+  cart => cart.cardItems
+);
+
+export const selectCartItemsCount = createSelector(
+  [selelctCartItems],
+  cartItems =>
+    cartItems.reduce(
+      (accumilatedValue, currentValue) =>
+        accumilatedValue + currentValue.quantity,
+      0
+    )
+);
+
+```
+
+change the card icon component to use selelctors
+
+```jsx
+import React from "react";
+import "./cart-icon.style.scss";
+import { ReactComponent as ShoppingIcon } from "../../assets/shoopingBag.svg";
+import { connect } from "react-redux";
+import { toggleCardHidden } from "../../redux/cart/cart.action";
+import { selectCartItemsCount } from "../../redux/cart/cart.selelctors";
+const CartIcon = ({ toggleCardHidden, count }) => {
+  return (
+    <div className="cart-icon" onClick={toggleCardHidden}>
+      <ShoppingIcon className="shopping-icon" />
+      <span className="item-count">{count}</span>
+    </div>
+  );
+};
+const mapDispatchToProps = dispatch => ({
+  toggleCardHidden: () => dispatch(toggleCardHidden())
+});
+const mapStateToProps = state => ({
+  count: selectCartItemsCount(state)
+});
+export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
+
+```
+
+and card-dropdown component
+
+```jsx
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import CartItem from "../cart-item/cart-item.component";
+import { connect } from "react-redux";
+import { selelctCartItems } from "../../redux/cart/cart.selelctors";
+
+const CartDropDown = ({ cardItems }) => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items">
+        {cardItems.map(cardItem => (
+          <CartItem key={cardItem.id} item={cardItem} />
+        ))}
+      </div>
+      <CustomButton>GO TO CHEKOUT</CustomButton>
+    </div>
+  );
+};
+
+const mapStateToProps = state => ({ cardItems: selelctCartItems(state) });
+
+export default connect(mapStateToProps)(CartDropDown);
+
+```
