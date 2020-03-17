@@ -1,4 +1,145 @@
-const SHOP_DATA = [
+# adding more redux to directory component and shop page
+
+lets create a Directory reducer 
+
+```js
+const INITIAL_STATE = {
+  secction: [
+    {
+      title: "hats",
+      imageUrl:
+        "https://images.pexels.com/photos/101537/baby-boy-hat-covered-101537.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 1,
+      linkUrl: "hats"
+    },
+    {
+      title: "jackets",
+      imageUrl:
+        "https://images.pexels.com/photos/1796102/pexels-photo-1796102.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 2,
+      linkUrl: ""
+    },
+    {
+      title: "sneakers",
+      imageUrl:
+        "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 3,
+      linkUrl: ""
+    },
+    {
+      title: "womens",
+      imageUrl:
+        "https://images.pexels.com/photos/3761026/pexels-photo-3761026.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      size: "large",
+      id: 4,
+      linkUrl: ""
+    },
+    {
+      title: "mens",
+      imageUrl:
+        "https://images.pexels.com/photos/2897531/pexels-photo-2897531.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      size: "large",
+      id: 5,
+      linkUrl: ""
+    }
+  ]
+};
+
+const DirectoryReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+
+export default DirectoryReducer;
+```
+
+lets create a the selelctor
+
+```js
+import { createSelector } from "reselect";
+
+const selectDirectory = state => state.directory;
+
+export const selectDirectoryList = createSelector(
+  [selectDirectory],
+  directory => directory.secction
+);
+```
+lets set the reducer
+
+```js
+import { combineReducers } from "redux";
+
+import UserReducer from "./user/user.reducer";
+import cartReducer from "./cart/cart.reducer";
+import DirectoryReducer from "./directory/directory.reducer";
+import ShopReducer from "./shop/shop.reducer";
+
+import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["cart"]
+};
+const rootReducer = combineReducers({
+  user: UserReducer,
+  cart: cartReducer,
+  directory: DirectoryReducer,
+  shop: ShopReducer
+});
+export default persistReducer(persistConfig, rootReducer);
+
+```
+lets change the directory component
+```jsx
+import React from "react";
+import MenuItem from "../menu-items/menu-item.component";
+import "./directory.style.scss";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { selectDirectoryList } from "../../redux/directory/directory.selelctor";
+const Directory = ({ secction }) => {
+  return (
+    <div className="directory-menu">
+      {secction.map(({ id, ...otherProps }) => (
+        <MenuItem key={id} {...otherProps} />
+      ))}
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  secction: selectDirectoryList
+});
+export default connect(mapStateToProps)(Directory);
+
+```
+
+## lets do teh shop 
+reducer
+```jsx 
+import { SHOP_DATA } from "./shop.data";
+const INITIAL_STATE = {
+  collections: SHOP_DATA
+};
+
+const shopReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+
+export default shopReducer;
+
+```
+shop data 
+```jsx 
+export const SHOP_DATA = [
   {
     id: 1,
     title: "Hats",
@@ -246,4 +387,92 @@ const SHOP_DATA = [
   }
 ];
 
-export default SHOP_DATA;
+```
+shop selelctor
+```jsx 
+
+import { createSelector } from "reselect";
+
+const selctShop = state => state.shop;
+
+export const selelctCollections = createSelector(
+  [selctShop],
+  shop => shop.collections
+);
+
+```
+shop page
+
+```jsx 
+import React from "react";
+import { createStructuredSelector } from "reselect";
+import { selelctCollections } from "../../redux/shop/shop.selector";
+
+import "./shop.style.scss";
+import CollectionPreview from "../../components/collection-preview/collection-preview.component";
+import { connect } from "react-redux";
+
+const ShopPage = ({ collections }) => {
+  return (
+    <div className="shop-page">
+      {collections.map(({ id, ...otherCollectionProps }) => (
+        <CollectionPreview key={id} {...otherCollectionProps} />
+      ))}
+    </div>
+  );
+};
+const mapStateToProps = createStructuredSelector({
+  collections: selelctCollections
+});
+export default connect(mapStateToProps)(ShopPage);
+
+```
+
+moving collection overview out of shop page 
+
+```jsx
+import React from "react";
+import "./collection-overview.style.scss";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { selelctCollections } from "../../redux/shop/shop.selector";
+import CollectionPreview from "../../components/collection-preview/collection-preview.component";
+
+const CollectioOverview = ({ collections }) => {
+  return (
+    <div className="collection-overview">
+      {collections.map(({ id, ...otherCollectionProps }) => (
+        <CollectionPreview key={id} {...otherCollectionProps} />
+      ))}
+    </div>
+  );
+};
+const mapStateToProps = createStructuredSelector({
+  collections: selelctCollections
+});
+export default connect(mapStateToProps)(CollectioOverview);
+```
+lets style this 
+```scss
+.collection-overview {
+  display: flex;
+  flex-direction: column;
+}
+```
+shop page 
+```jsx
+import React from "react";
+
+import "./shop.style.scss";
+import CollectioOverview from "../../components/collectio-overview/collection-overview.component";
+
+const ShopPage = () => {
+  return (
+    <div className="shop-page">
+      <CollectioOverview />
+    </div>
+  );
+};
+
+export default ShopPage;
+```
