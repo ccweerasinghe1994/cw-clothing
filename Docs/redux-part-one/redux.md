@@ -1415,3 +1415,135 @@ const mapDispatchToProps = dispatch => ({
 export default connect(mapStateToProps, mapDispatchToProps)(App);
 
 ```
+
+lets create the checkout page 
+
+```jsx
+import React from "react";
+import "./checkout.style.scss";
+
+const Checkout = () => {
+  return (
+    <div>
+      <h1>Checkout Page</h1>
+    </div>
+  );
+};
+
+export default Checkout;
+```
+set the routes
+```jsx
+import React, { Component } from "react";
+
+import HomePage from "./pages/homepage/homepage.component";
+import "./App.css";
+import { Route, Switch, Redirect } from "react-router-dom";
+import ShopPage from "./pages/shop/shop.component";
+import Checkout from "./pages/checkout/checkout.component";
+
+import Header from "./components/header/header.component";
+import SignInSignUp from "./components/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import { auth, createUserProfileDoucument } from "./firebase/firebase.utils";
+import { selectCurrentUser } from "./redux/user/user.selelctors";
+import { createStructuredSelector } from "reselect";
+import { connect } from "react-redux";
+import { setCurrentUser } from "./redux/user/user.actions";
+
+class App extends Component {
+  // beacuse this is a open subscription we have to close it
+  // because we dont need any memory leaks in our application
+  unsubscribeFromAuth = null;
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDoucument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({ currentUser: snapShot.id, ...snapShot.data() });
+        });
+      } else {
+        setCurrentUser(userAuth);
+      }
+    });
+  }
+
+  // to close the subscription
+
+  componentWillUnmount() {
+    // this will close the subscription
+    this.unsubscribeFromAuth();
+  }
+  render() {
+    return (
+      <div>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/shop" component={ShopPage} />
+          <Route exact path="/checkout" component={Checkout} />
+          <Route
+            exact
+            path="/signin"
+            render={() =>
+              this.props.currentUser ? (
+                <Redirect to="/"></Redirect>
+              ) : (
+                <SignInSignUp />
+              )
+            }
+          ></Route>
+        </Switch>
+      </div>
+    );
+  }
+}
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser
+});
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+```
+
+set the onclik withRouter()
+
+```jsx
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import CartItem from "../cart-item/cart-item.component";
+import { connect } from "react-redux";
+import { selelctCartItems } from "../../redux/cart/cart.selelctors";
+import { createStructuredSelector } from "reselect";
+import Checkout from "../../pages/checkout/checkout.component";
+import { withRouter } from "react-router-dom";
+const CartDropDown = ({ cardItems, history }) => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items">
+        {cardItems.length ? (
+          cardItems.map(cardItem => (
+            <CartItem key={cardItem.id} item={cardItem} />
+          ))
+        ) : (
+          <span className="empty-message">YOUR CART IS EMPTY</span>
+        )}
+      </div>
+      <CustomButton onClick={() => history.push("/checkout")}>
+        GO TO CHEKOUT
+      </CustomButton>
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  cardItems: selelctCartItems
+});
+
+export default withRouter(connect(mapStateToProps)(CartDropDown));
+```
