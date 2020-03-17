@@ -1848,3 +1848,217 @@ const mapStateToProps = createStructuredSelector({
 });
 export default connect(mapStateToProps)(Checkout);
 ```
+
+lets create a remove item redux part
+action type
+```jsx
+export const CartActionTypes = {
+  TOGGLE_CART_HIDDEN: "TOGGLE_CART_HIDDEN",
+  ADD_ITEM: "ADD_ITEM",import { CartActionTypes } from "./cart.types";
+
+export const toggleCardHidden = () => ({
+  type: CartActionTypes.TOGGLE_CART_HIDDEN
+});
+
+export const addItem = item => ({
+  type: CartActionTypes.ADD_ITEM,
+  payload: item
+});
+
+export const clearItemFromCart = item => ({
+  type: CartActionTypes.CLEAR_ITEM_FROM_CART,
+  payload: item
+});
+
+export const removeItem = item => ({
+  type: CartActionTypes.REMOVE_ITEM,
+  payload: item
+});
+
+  CLEAR_ITEM_FROM_CART: "CLEAR_ITEM_FROM_CART",
+  REMOVE_ITEM: "REMOVE_ITEM"
+};
+
+```
+action
+```jsx 
+import { CartActionTypes } from "./cart.types";
+
+export const toggleCardHidden = () => ({
+  type: CartActionTypes.TOGGLE_CART_HIDDEN
+});
+
+export const addItem = item => ({
+  type: CartActionTypes.ADD_ITEM,
+  payload: item
+});
+
+export const clearItemFromCart = item => ({
+  type: CartActionTypes.CLEAR_ITEM_FROM_CART,
+  payload: item
+});
+
+export const removeItem = item => ({
+  type: CartActionTypes.REMOVE_ITEM,
+  payload: item
+});
+
+```
+reducer 
+```jsx 
+import { CartActionTypes } from "./cart.types";
+import { addItemToCart, removeItemFromCart } from "./cart.util";
+const INITIAL_STATE = {
+  hiddren: true,
+  cardItems: []
+};
+
+const cartReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    case CartActionTypes.TOGGLE_CART_HIDDEN:
+      return {
+        ...state,
+        hiddren: !state.hiddren
+      };
+    case CartActionTypes.ADD_ITEM:
+      return {
+        ...state,
+        cardItems: addItemToCart(state.cardItems, action.payload)
+      };
+    case CartActionTypes.CLEAR_ITEM_FROM_CART:
+      return {
+        ...state,
+        cardItems: state.cardItems.filter(
+          cartItem => cartItem.id !== action.payload.id
+        )
+      };
+    case CartActionTypes.REMOVE_ITEM:
+      return {
+        ...state,
+        cardItems: removeItemFromCart(state.cardItems, action.payload)
+      };
+    default:
+      return state;
+  }
+};
+
+export default cartReducer;
+
+```
+utility function
+```jsx 
+export const addItemToCart = (cardItems, cardItemToAdd) => {
+  const exsistingCardItem = cardItems.find(
+    cardItem => cardItem.id === cardItemToAdd.id
+  );
+
+  if (exsistingCardItem) {
+    return cardItems.map(cardItem =>
+      cardItem.id === cardItemToAdd.id
+        ? { ...cardItem, quantity: cardItem.quantity + 1 }
+        : cardItem
+    );
+  }
+  return [...cardItems, { ...cardItemToAdd, quantity: 1 }];
+};
+
+export const removeItemFromCart = (cartItems, cartItemToRemove) => {
+  const existingCartItem = cartItems.find(
+    cartItem => (cartItem.id = cartItemToRemove.id)
+  );
+
+  if (existingCartItem.quantity === 1) {
+    return cartItems.filter(cartitem => cartitem.id !== cartItemToRemove.id);
+  }
+  return cartItems.map(cartitem =>
+    cartitem.id === cartItemToRemove.id
+      ? { ...cartitem, quantity: cartitem.quantity - 1 }
+      : cartitem
+  );
+};
+
+```
+
+implementing it in the checkout item component
+
+```jsx
+import React from "react";
+import "./checkout-item.style.scss";
+import { connect } from "react-redux";
+import {
+  clearItemFromCart,
+  removeItem,
+  addItem
+} from "../../redux/cart/cart.action";
+const CheckoutItem = ({ item, clearItem, additem, removeItem }) => {
+  const { name, imageUrl, quantity, price } = item;
+  return (
+    <div className="checkout-item">
+      <div className="image-container">
+        <img src={imageUrl} alt="item" />
+      </div>
+      <span className="name">{name}</span>
+      <span className="quantity">
+        <div className="arrow" onClick={() => removeItem(item)}>
+          &#10094;
+        </div>
+        <div className="value">{quantity}</div>
+        <div className="arrow" onClick={() => additem(item)}>
+          &#10095;
+        </div>
+      </span>
+      <span className="price">{price}</span>
+      <div className="remove-button" onClick={() => clearItem(item)}>
+        &#10005;
+      </div>
+    </div>
+  );
+};
+
+const mapDispatchToProps = dispatch => ({
+  clearItem: item => dispatch(clearItemFromCart(item)),
+  additem: item => dispatch(addItem(item)),
+  removeItem: item => dispatch(removeItem(item))
+});
+export default connect(null, mapDispatchToProps)(CheckoutItem);
+```
+ lets add style to quantity
+ ```scss
+ .checkout-item {
+  width: 100%;
+  display: flex;
+  min-height: 100px;
+  border-bottom: 1px solid darkgray;
+  padding: 15px 0;
+  font-size: 20px;
+  align-items: center;
+
+  .image-container {
+    width: 23%;
+    padding-right: 15px;
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
+  }
+  .name,
+  .quantity,
+  .price {
+    width: 23%;
+  }
+  .quantity {
+    display: flex;
+    .arrow {
+      cursor: pointer;
+    }
+    .value {
+      margin: 0 10px;
+    }
+  }
+  .remove-button {
+    padding-left: 12px;
+    cursor: pointer;
+  }
+}
+```
