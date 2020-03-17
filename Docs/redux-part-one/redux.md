@@ -1202,3 +1202,216 @@ const mapStateToProps = state => ({ cardItems: selelctCartItems(state) });
 export default connect(mapStateToProps)(CartDropDown);
 
 ```
+now implement reselelct for the users as well
+
+lets create user selelctor
+```js
+import { createSelector } from "reselect";
+
+const selelctUser = state => state.user;
+
+export const selectCurrentUser = createSelector(
+  [selelctUser],
+  user => user.currentUser
+);
+```
+add cart hiddent to the cart selelctor
+```js
+import { createSelector } from "reselect";
+const selectCart = state => state.cart;
+
+export const selelctCartItems = createSelector(
+  [selectCart],
+  cart => cart.cardItems
+);
+
+export const selectCartItemsCount = createSelector(
+  [selelctCartItems],
+  cartItems =>
+    cartItems.reduce(
+      (accumilatedValue, currentValue) =>
+        accumilatedValue + currentValue.quantity,
+      0
+    )
+);
+
+export const selelctCartHidden = createSelector(
+  [selectCart],
+  cartItem => cartItem.hiddren
+);
+```
+implement it on header
+
+```js
+import React from "react";
+import "./header.style.scss";
+import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { auth } from "../../firebase/firebase.utils";
+import { connect } from "react-redux";
+import CartIcon from "../cart-icon/cart-icon.component";
+import CartDropdown from "../cart-dropdown/cart-dropdown.component";
+import { createStructuredSelector } from "reselect";
+import { selelctCartHidden } from "../../redux/cart/cart.selelctors";
+import { selectCurrentUser } from "../../redux/user/user.selelctors";
+const Header = ({ currentUser, hiddren }) => {
+  return (
+    <div className="header">
+      <Link to="/" className="logo-container">
+        <Logo className="logo"></Logo>
+      </Link>
+      <div className="options">
+        <Link to="/shop" className="option">
+          SHOP
+        </Link>
+        <Link to="/contact" className="option">
+          CONTACT
+        </Link>
+
+        {currentUser ? (
+          <div className="option" onClick={() => auth.signOut()}>
+            SIGN OUT
+          </div>
+        ) : (
+          <Link to="/signin">SIGN IN</Link>
+        )}
+        <CartIcon />
+      </div>
+      {hiddren ? null : <CartDropdown />}
+    </div>
+  );
+};
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser,
+  hiddren: selelctCartHidden
+});
+export default connect(mapStateToProps)(Header);
+```
+implement it on cart-icon
+```js
+import React from "react";
+import "./cart-icon.style.scss";
+import { ReactComponent as ShoppingIcon } from "../../assets/shoopingBag.svg";
+import { connect } from "react-redux";
+import { toggleCardHidden } from "../../redux/cart/cart.action";
+import { selectCartItemsCount } from "../../redux/cart/cart.selelctors";
+import { createStructuredSelector } from "reselect";
+const CartIcon = ({ toggleCardHidden, count }) => {
+  return (
+    <div className="cart-icon" onClick={toggleCardHidden}>
+      <ShoppingIcon className="shopping-icon" />
+      <span className="item-count">{count}</span>
+    </div>
+  );
+};
+const mapDispatchToProps = dispatch => ({
+  toggleCardHidden: () => dispatch(toggleCardHidden())
+});
+const mapStateToProps = createStructuredSelector({
+  count: selectCartItemsCount
+});
+export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
+```
+implement on cart-dropdown
+```js
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import CartItem from "../cart-item/cart-item.component";
+import { connect } from "react-redux";
+import { selelctCartItems } from "../../redux/cart/cart.selelctors";
+import { createStructuredSelector } from "reselect";
+
+const CartDropDown = ({ cardItems }) => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items">
+        {cardItems.map(cardItem => (
+          <CartItem key={cardItem.id} item={cardItem} />
+        ))}
+      </div>
+      <CustomButton>GO TO CHEKOUT</CustomButton>
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  cardItems: selelctCartItems
+});
+
+export default connect(mapStateToProps)(CartDropDown);
+```
+also on app
+```jsx
+import React, { Component } from "react";
+
+import HomePage from "./pages/homepage/homepage.component";
+import "./App.css";
+import { Route, Switch, Redirect } from "react-router-dom";
+import ShopPage from "./pages/shop/shop.component";
+import Header from "./components/header/header.component";
+import SignInSignUp from "./components/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import { auth, createUserProfileDoucument } from "./firebase/firebase.utils";
+import { selectCurrentUser } from "./redux/user/user.selelctors";
+import { createStructuredSelector } from "reselect";
+import { connect } from "react-redux";
+import { setCurrentUser } from "./redux/user/user.actions";
+
+class App extends Component {
+ 
+  unsubscribeFromAuth = null;
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDoucument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({ currentUser: snapShot.id, ...snapShot.data() });
+        });
+      } else {
+        setCurrentUser(userAuth);
+      }
+    });
+  }
+
+  
+
+  componentWillUnmount() {
+   
+    this.unsubscribeFromAuth();
+  }
+  render() {
+    return (
+      <div>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/shop" component={ShopPage} />
+          <Route
+            exact
+            path="/signin"
+            render={() =>
+              this.props.currentUser ? (
+                <Redirect to="/"></Redirect>
+              ) : (
+                <SignInSignUp />
+              )
+            }
+          ></Route>
+        </Switch>
+      </div>
+    );
+  }
+}
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser
+});
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
+
+```
