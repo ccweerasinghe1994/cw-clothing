@@ -1608,3 +1608,243 @@ lets style this
   }
 }
 ```
+
+to show the price 
+
+```js
+import { createSelector } from "reselect";
+const selectCart = state => state.cart;
+
+export const selelctCartItems = createSelector(
+  [selectCart],
+  cart => cart.cardItems
+);
+
+export const selectCartItemsCount = createSelector(
+  [selelctCartItems],
+  cartItems =>
+    cartItems.reduce(
+      (accumilatedValue, currentValue) =>
+        accumilatedValue + currentValue.quantity,
+      0
+    )
+);
+
+export const selelctCartHidden = createSelector(
+  [selectCart],
+  cartItem => cartItem.hiddren
+);
+
+export const selelctCartItemsPrice = createSelector(
+  [selelctCartItems],
+  cartItems =>
+    cartItems.reduce(
+      (accumilatedValue, currentValue) =>
+        accumilatedValue + currentValue.quantity * currentValue.price,
+      0
+    )
+);
+```
+
+
+checkout component
+
+```jsx
+import React from "react";
+import "./checkout.style.scss";
+
+import {
+  selelctCartItemsPrice,
+  selelctCartItems
+} from "../../redux/cart/cart.selelctors";
+
+import { createStructuredSelector } from "reselect";
+import {} from "module";
+import { connect } from "react-redux";
+
+const Checkout = ({ total, selelctedItems }) => {
+  return (
+    <div className="checkout-page">
+      <div className="checkout-header">
+        <div className="header-block">
+          <span>Product</span>
+        </div>
+        <div className="header-block">
+          <span>Description</span>
+        </div>
+        <div className="header-block">
+          <span>Quantity</span>
+        </div>
+        <div className="header-block">
+          <span>Price</span>
+        </div>
+        <div className="header-block">
+          <span>Remove</span>
+        </div>
+      </div>
+      {selelctedItems.map(cartItem => cartItem.name)}
+      <div className="total">
+        <span>TOTAL: ${total}</span>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  total: selelctCartItemsPrice,
+  selelctedItems: selelctCartItems
+});
+export default connect(mapStateToProps)(Checkout);
+
+```
+
+lets creata a option to close the checkout dropdown when go to checkout is clicked
+
+```jsx
+import React from "react";
+import "./cart-dropdown.style.scss";
+import CustomButton from "../custom-button/custom-buttom.component";
+import CartItem from "../cart-item/cart-item.component";
+import { connect } from "react-redux";
+import { selelctCartItems } from "../../redux/cart/cart.selelctors";
+import { createStructuredSelector } from "reselect";
+import Checkout from "../../pages/checkout/checkout.component";
+import { withRouter } from "react-router-dom";
+import { toggleCardHidden } from "../../redux/cart/cart.action";
+const CartDropDown = ({ cardItems, history, dispatch }) => {
+  return (
+    <div className="cart-dropdown">
+      <div className="cart-items">
+        {cardItems.length ? (
+          cardItems.map(cardItem => (
+            <CartItem key={cardItem.id} item={cardItem} />
+          ))
+        ) : (
+          <span className="empty-message">YOUR CART IS EMPTY</span>
+        )}
+      </div>
+      <CustomButton
+        onClick={() => {
+          history.push("/checkout");
+          dispatch(toggleCardHidden());
+        }}
+      >
+        GO TO CHEKOUT
+      </CustomButton>
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  cardItems: selelctCartItems
+});
+
+export default withRouter(connect(mapStateToProps)(CartDropDown));
+```
+
+lets create a checkoutItem component
+```jsx
+import React from "react";
+import "./checkout-item.style.scss";
+const CheckoutItem = ({ item: { name, imageUrl, quantity, price } }) => {
+  return (
+    <div className="checkout-item">
+      <div className="image-container">
+        <img src={imageUrl} alt="item" />
+      </div>
+      <span className="name">{name}</span>
+      <span className="quantity">{quantity}</span>
+      <span className="price">{price}</span>
+      <div className="remove-button">&#10005;</div>
+    </div>
+  );
+};
+
+export default CheckoutItem;
+```
+
+lets style this 
+```scss
+.checkout-item {
+  width: 100%;
+  display: flex;
+  min-height: 100px;
+  border-bottom: 1px solid darkgray;
+  padding: 15px 0;
+  font-size: 20px;
+  align-items: center;
+
+  .image-container {
+    width: 23%;
+    padding-right: 15px;
+
+    img {
+      height: 100%;
+      width: 100%;
+    }
+  }
+  .name,
+  .quantity,
+  .price {
+    width: 23%;
+  }
+  .quantity {
+    padding-left: 20px;
+  }
+  .remove-button {
+    padding-left: 12px;
+    cursor: pointer;
+  }
+}
+```
+lets implement it on checkout page
+
+```jsx
+import React from "react";
+import "./checkout.style.scss";
+
+import {
+  selelctCartItemsPrice,
+  selelctCartItems
+} from "../../redux/cart/cart.selelctors";
+
+import { createStructuredSelector } from "reselect";
+import CheckoutItem from "../../components/checkout-item/checkout-item.component";
+import { connect } from "react-redux";
+
+const Checkout = ({ total, selelctedItems }) => {
+  return (
+    <div className="checkout-page">
+      <div className="checkout-header">
+        <div className="header-block">
+          <span>Product</span>
+        </div>
+        <div className="header-block">
+          <span>Description</span>
+        </div>
+        <div className="header-block">
+          <span>Quantity</span>
+        </div>
+        <div className="header-block">
+          <span>Price</span>
+        </div>
+        <div className="header-block">
+          <span>Remove</span>
+        </div>
+      </div>
+      {selelctedItems.map(cartItem => (
+        <CheckoutItem item={cartItem} />
+      ))}
+      <div className="total">
+        <span>TOTAL: ${total}</span>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = createStructuredSelector({
+  total: selelctCartItemsPrice,
+  selelctedItems: selelctCartItems
+});
+export default connect(mapStateToProps)(Checkout);
+```
