@@ -8,7 +8,7 @@ const CollectionPage = ({ collection }) => {
 
   return (
     <div className="collection-page">
-      <h2>COLLECTION PAGE</h2>
+      <h2 className='tile'>COLLECTION PAGE</h2>
     </div>
   );
 };
