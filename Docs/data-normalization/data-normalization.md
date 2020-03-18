@@ -1,3 +1,137 @@
+# Data-normalization
+
+collection-component
+```jsx
+import React from "react";
+import "./collection.style.scss";
+import { connect } from "react-redux";
+import { selectCollection } from "../../redux/shop/shop.selector";
+import CollectionItem from "../../components/collection-item/collection-item.component";
+const CollectionPage = ({ collection }) => {
+  console.log("collection", collection);
+  const { title, items } = collection;
+  return (
+    <div className="collection-page">
+      <h2 className="tile">{title}</h2>
+      <div className="items">
+        {items.map(item => (
+          <CollectionItem key={item.id} item={item} />
+        ))}
+      </div>
+    </div>
+  );
+};
+const mapStateToProps = (state, ownProps) => ({
+  collection: selectCollection(ownProps.match.params.collectionId)(state)
+});
+export default connect(mapStateToProps)(CollectionPage);
+```
+
+lets style 
+```scss
+.collection-item {
+  width: 23vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 350px;
+  position: relative;
+  .image {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 5px;
+  }
+  .custom-button {
+    width: 80%;
+    opacity: 0.7;
+    position: absolute;
+    top: 255px;
+    display: none;
+  }
+  &:hover {
+    .image {
+      opacity: 0.8;
+    }
+    .custom-button {
+      opacity: 0.85;
+      display: flex;
+    }
+  }
+  .collection-footer {
+    width: 100%;
+    height: 5%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+
+    .name {
+      width: 90%;
+      margin-bottom: 15px;
+    }
+    .price {
+      width: 10%;
+    }
+  }
+}
+```
+direcotory reducer
+```js
+const INITIAL_STATE = {
+  secction: [
+    {
+      title: "hats",
+      imageUrl:
+        "https://images.pexels.com/photos/101537/baby-boy-hat-covered-101537.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 1,
+      linkUrl: "shop/hats"
+    },
+    {
+      title: "jackets",
+      imageUrl:
+        "https://images.pexels.com/photos/1796102/pexels-photo-1796102.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 2,
+      linkUrl: "shop/jackets"
+    },
+    {
+      title: "sneakers",
+      imageUrl:
+        "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      id: 3,
+      linkUrl: "shop/sneakers"
+    },
+    {
+      title: "womens",
+      imageUrl:
+        "https://images.pexels.com/photos/3761026/pexels-photo-3761026.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      size: "large",
+      id: 4,
+      linkUrl: "shop/womens"
+    },
+    {
+      title: "mens",
+      imageUrl:
+        "https://images.pexels.com/photos/2897531/pexels-photo-2897531.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      size: "large",
+      id: 5,
+      linkUrl: "shop/mens"
+    }
+  ]
+};
+
+const DirectoryReducer = (state = INITIAL_STATE, action) => {
+  switch (action.type) {
+    default:
+      return state;
+  }
+};
+
+export default DirectoryReducer;
+```
+
+shop data
+```js
 export const SHOP_DATA = {
   hats: {
     id: 1,
@@ -245,3 +379,50 @@ export const SHOP_DATA = {
     ]
   }
 };
+```
+lets create a shopselelctor
+```js
+import { createSelector } from "reselect";
+
+const selctShop = state => state.shop;
+
+export const selelctCollections = createSelector(
+  [selctShop],
+  shop => shop.collections
+);
+
+export const selelctCollectionPreviewCollections = createSelector(
+  [selelctCollections],
+  collections => Object.keys(collections).map(key => collections[key])
+);
+export const selectCollection = collectionUrlParam =>
+  createSelector(
+    [selelctCollections],
+    collections => collections[collectionUrlParam]
+  );
+```
+
+add it to the collection overview component
+
+```jsx
+import React from "react";
+import "./collection-overview.style.scss";
+import { connect } from "react-redux";
+import { createStructuredSelector } from "reselect";
+import { selelctCollectionPreviewCollections } from "../../redux/shop/shop.selector";
+import CollectionPreview from "../../components/collection-preview/collection-preview.component";
+
+const CollectioOverview = ({ collections }) => {
+  return (
+    <div className="collection-overview">
+      {collections.map(({ id, ...otherCollectionProps }) => (
+        <CollectionPreview key={id} {...otherCollectionProps} />
+      ))}
+    </div>
+  );
+};
+const mapStateToProps = createStructuredSelector({
+  collections: selelctCollectionPreviewCollections
+});
+export default connect(mapStateToProps)(CollectioOverview);
+```
