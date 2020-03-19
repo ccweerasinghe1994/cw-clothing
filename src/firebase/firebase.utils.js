@@ -58,5 +58,35 @@ provider.setCustomParameters({ propmt: "select_account" });
 // this is the popup configuration
 
 export const signInWithGoolge = () => auth.signInWithPopup(provider);
+// this function is used for adding data to the firebase
+
+export const addCollectionAndDocuments = async (collectionKey, ObjectToAdd) => {
+  const collectionRef = await firestore.collection(collectionKey);
+
+  const batch = firestore.batch();
+  ObjectToAdd.forEach(object => {
+    const docRef = collectionRef.doc();
+    
+    batch.set(docRef, object);
+  });
+  return await batch.commit();
+};
+
+export const collectionsSnapshotToMap = snapshot=>{
+     const transformedCollection = snapshot.docs.map(doc => {
+       const { title, items } = doc.data();
+       return {
+         routeName: encodeURI(title.toLowerCase()),
+         id: doc.id,
+         title,
+         items
+       };
+     });
+
+     return transformedCollection.reduce((accumilitaor, collection) => {
+       accumilitaor[collection.title.toLowerCase()] = collection;
+       return accumilitaor;
+     }, {});
+}
 
 export default firebase;
