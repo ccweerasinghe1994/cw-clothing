@@ -5,7 +5,10 @@ import {
 } from "../../firebase/firebase.utils";
 import CustomButtom from "../custom-button/custom-buttom.component";
 import FormInput from "../form-input/form-input.component";
-import "./sign-up.style.scss";
+
+import {SignUpContainer} from './sign-up.styles';
+import { TitleContainer } from "../sign-in/sign-in.styles";
+
 class SignUp extends Component {
   constructor(props) {
     super(props);
@@ -48,8 +51,8 @@ class SignUp extends Component {
   render() {
     const { displayName, email, password, confirmPassword } = this.state;
     return (
-      <div className="sign-up">
-        <h2 className="title">I do not have a account</h2>
+      <SignUpContainer >
+        <TitleContainer >I do not have a account</TitleContainer>
         <span>Sign up with your email and password</span>
         <form className="sign-up-form" onSubmit={this.handleSubmit}>
           <FormInput
@@ -87,7 +90,7 @@ class SignUp extends Component {
           />
           <CustomButtom type="submit">SIGN UP</CustomButtom>
         </form>
-      </div>
+      </SignUpContainer>
     );
   }
 }
