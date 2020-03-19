@@ -10,6 +10,7 @@ import Header from "./components/header/header.component";
 import SignInSignUp from "./components/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import { auth, createUserProfileDoucument } from "./firebase/firebase.utils";
 import { selectCurrentUser } from "./redux/user/user.selelctors";
+
 import { createStructuredSelector } from "reselect";
 import { connect } from "react-redux";
 import { setCurrentUser } from "./redux/user/user.actions";
